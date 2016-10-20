@@ -3,6 +3,7 @@ from flask import render_template
 from flask_wtf import Form
 from wtforms import fields
 from wtforms.validators import Required
+import pandas as pd
 
 from . import app, estimator, target_names
 
@@ -38,8 +39,15 @@ def index():
         # Create array from values
         flower_instance = [sepal_length, sepal_width, petal_length, petal_width]
 
-        my_prediction = estimator.predict(flower_instance)
+        my_prediction = estimator.predict([flower_instance])
         # Return only the Predicted iris species
         prediction = target_names[my_prediction].capitalize()
 
-    return render_template('index.html', form=form, prediction=prediction)
+    iris_df = pd.read_csv("data/iris.csv")
+    iris_json = iris_df.to_json(orient='records')
+
+    return render_template('index.html',
+        form=form,
+        prediction=prediction,
+        iris_data=iris_json)
+
